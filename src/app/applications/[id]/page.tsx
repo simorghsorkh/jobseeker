@@ -1,5 +1,4 @@
 import { createClient } from "@/lib/supabase/server";
-import { getApplication } from "@/lib/db/applications";
 import { ApplicationDetail } from "@/components/applications/ApplicationDetail";
 import { notFound } from "next/navigation";
 
@@ -9,7 +8,13 @@ interface PageProps {
 
 export default async function ApplicationPage({ params }: PageProps) {
   const { id } = await params;
-  const application = await getApplication(id);
+  const supabase = await createClient();
+  const { data: application } = await supabase
+    .from("applications")
+    .select(`*, activities(*), notes(*), files:application_files(*), reminders(*)`)
+    .eq("id", id)
+    .single();
+
   if (!application) notFound();
   return <ApplicationDetail application={application} />;
 }
