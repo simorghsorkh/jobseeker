@@ -176,19 +176,19 @@ export const INDUSTRIES = [
 export const CURRENCIES = ["USD", "EUR", "GBP", "CAD", "AUD", "CHF", "JPY", "SGD", "INR"];
 
 export const VISA_SPONSORSHIP_OPTIONS = [
-  { value: "yes",     label: "✅ بله — اسپانسرشیپ می‌دهد" },
-  { value: "maybe",   label: "🤔 احتمالاً / بررسی می‌شود" },
-  { value: "eu_only", label: "🇪🇺 فقط برای شهروندان EU" },
-  { value: "no",      label: "❌ خیر — اسپانسرشیپ نمی‌دهد" },
+  { value: "yes",     label: "✅ Yes — Sponsors visas" },
+  { value: "maybe",   label: "🤔 Maybe — Case by case" },
+  { value: "eu_only", label: "🇪🇺 EU citizens only" },
+  { value: "no",      label: "❌ No — Does not sponsor" },
 ] as const;
 
 export const CONTRACT_TYPE_OPTIONS = [
-  { value: "permanent",  label: "Permanent — دائمی (Onbepaalde tijd)" },
-  { value: "fixed_term", label: "Fixed-term — مدت معین (Bepaalde tijd)" },
-  { value: "temporary",  label: "Temporary — موقت / اوزندکراخت" },
-  { value: "payroll",    label: "Payroll — پی‌رول" },
-  { value: "zzp",        label: "ZZP / Freelance — فریلنس" },
-  { value: "internship", label: "Internship — کارآموزی / Stage" },
+  { value: "permanent",  label: "Permanent (Onbepaalde tijd)" },
+  { value: "fixed_term", label: "Fixed-term (Bepaalde tijd)" },
+  { value: "temporary",  label: "Temporary" },
+  { value: "payroll",    label: "Payroll" },
+  { value: "zzp",        label: "ZZP / Freelance" },
+  { value: "internship", label: "Internship / Stage" },
 ] as const;
 
 export const DESCRIPTION_LANGUAGES = [

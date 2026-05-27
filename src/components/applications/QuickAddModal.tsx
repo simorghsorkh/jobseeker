@@ -51,6 +51,7 @@ export function QuickAddModal() {
     job_title: "",
     job_url: "",
     status: "saved" as ApplicationStatus,
+    application_date: new Date().toISOString().split("T")[0],
     work_mode: "" as WorkMode | "",
     employment_type: "" as EmploymentType | "",
     location: "",
@@ -144,10 +145,7 @@ export function QuickAddModal() {
         recruiter_name: null,
         recruiter_linkedin: null,
         contact_email: null,
-        application_date:
-          form.status !== "saved"
-            ? new Date().toISOString().split("T")[0]
-            : null,
+        application_date: form.application_date || null,
         job_description: null,
         cv_version: null,
         cover_letter_used: null,
@@ -178,6 +176,7 @@ export function QuickAddModal() {
       job_title: "",
       job_url: "",
       status: "saved",
+      application_date: new Date().toISOString().split("T")[0],
       work_mode: "",
       employment_type: "",
       location: "",
@@ -194,9 +193,9 @@ export function QuickAddModal() {
   };
 
   const dutchOptions = [
-    { value: "yes", label: "بله — الزامی است" },
-    { value: "preferred", label: "ترجیحی (Preferred)" },
-    { value: "no", label: "خیر — الزامی نیست" },
+    { value: "yes", label: "Yes — Required" },
+    { value: "preferred", label: "Preferred" },
+    { value: "no", label: "No — Not required" },
   ];
 
   return (
@@ -282,8 +281,8 @@ export function QuickAddModal() {
               />
             </div>
 
-            {/* Row 3: Status + Work Mode + Type */}
-            <div className="grid grid-cols-3 gap-4">
+            {/* Row 2b: Status + Applied Date */}
+            <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <Label>Status</Label>
                 <Select
@@ -302,6 +301,19 @@ export function QuickAddModal() {
                   </SelectContent>
                 </Select>
               </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="application_date">Applied Date</Label>
+                <Input
+                  id="application_date"
+                  type="date"
+                  value={form.application_date}
+                  onChange={(e) => update("application_date", e.target.value)}
+                />
+              </div>
+            </div>
+
+            {/* Row 3: Work Mode + Type */}
+            <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <Label>Work Mode</Label>
                 <Select
@@ -352,7 +364,7 @@ export function QuickAddModal() {
                 />
               </div>
               <div className="space-y-1.5">
-                <Label>Industry (صنعت)</Label>
+                <Label>Industry</Label>
                 <Select
                   value={form.industry}
                   onValueChange={(v) => update("industry", v)}
@@ -374,7 +386,7 @@ export function QuickAddModal() {
             {/* Row 5: Source + Description Language + Dutch Required */}
             <div className="grid grid-cols-3 gap-4">
               <div className="space-y-1.5">
-                <Label>From (از کجا اقدام کردم)</Label>
+                <Label>Source</Label>
                 <Select
                   value={form.source}
                   onValueChange={(v) => update("source", v)}
@@ -394,7 +406,7 @@ export function QuickAddModal() {
               <div className="space-y-1.5">
                 <Label className="flex items-center gap-1.5">
                   <Languages className="h-3.5 w-3.5 text-muted-foreground" />
-                  زبان آگهی
+                  Description Language
                 </Label>
                 <Select
                   value={form.description_language}
@@ -415,7 +427,7 @@ export function QuickAddModal() {
               <div className="space-y-1.5">
                 <Label className="flex items-center gap-1.5">
                   <AlertCircle className="h-3.5 w-3.5 text-muted-foreground" />
-                  Dutch الزامی؟
+                  Dutch Required?
                 </Label>
                 <Select
                   value={form.dutch_required}
@@ -447,7 +459,7 @@ export function QuickAddModal() {
                   onValueChange={(v) => update("visa_sponsorship", v)}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="اسپانسرشیپ..." />
+                    <SelectValue placeholder="Select..." />
                   </SelectTrigger>
                   <SelectContent>
                     {VISA_SPONSORSHIP_OPTIONS.map((o) => (
@@ -461,7 +473,7 @@ export function QuickAddModal() {
               <div className="space-y-1.5">
                 <Label className="flex items-center gap-1.5">
                   <span>📋</span>
-                  نوع قرارداد
+                  Contract Type
                 </Label>
                 <Select
                   value={form.contract_type ?? ""}
@@ -483,10 +495,10 @@ export function QuickAddModal() {
 
             {/* Row 7: Initial Notes */}
             <div className="space-y-1.5">
-              <Label htmlFor="initial_notes">توضیحات اولیه</Label>
+              <Label htmlFor="initial_notes">Initial Notes</Label>
               <Textarea
                 id="initial_notes"
-                placeholder="اولین نظرات، دلایل اقدام، نکات مهم درباره این موقعیت..."
+                placeholder="First impressions, reasons for applying, important notes about this role..."
                 value={form.initial_notes}
                 onChange={(e) => update("initial_notes", e.target.value)}
                 rows={3}

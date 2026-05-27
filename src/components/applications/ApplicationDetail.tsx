@@ -337,7 +337,7 @@ export function ApplicationDetail({ application: initialApp }: ApplicationDetail
                     <div className="flex items-center justify-between">
                       <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
                         <AlertCircle className="h-3.5 w-3.5" />
-                        Dutch الزامی؟
+                        Dutch Required?
                       </span>
                       <span className={cn(
                         "text-xs font-semibold px-2 py-0.5 rounded-full",
@@ -345,7 +345,7 @@ export function ApplicationDetail({ application: initialApp }: ApplicationDetail
                           ? "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
                           : "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
                       )}>
-                        {app.dutch_required ? "الزامی" : "الزامی نیست"}
+                        {app.dutch_required ? "Required" : "Not required"}
                       </span>
                     </div>
                   )}
@@ -364,10 +364,10 @@ export function ApplicationDetail({ application: initialApp }: ApplicationDetail
                           ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
                           : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
                       )}>
-                        {app.visa_sponsorship === "yes"     && "✅ می‌دهد"}
-                        {app.visa_sponsorship === "maybe"   && "🤔 احتمالاً"}
-                        {app.visa_sponsorship === "eu_only" && "🇪🇺 فقط EU"}
-                        {app.visa_sponsorship === "no"      && "❌ نمی‌دهد"}
+                        {app.visa_sponsorship === "yes"     && "✅ Yes"}
+                        {app.visa_sponsorship === "maybe"   && "🤔 Maybe"}
+                        {app.visa_sponsorship === "eu_only" && "🇪🇺 EU only"}
+                        {app.visa_sponsorship === "no"      && "❌ No"}
                       </span>
                     </div>
                   )}
@@ -375,14 +375,14 @@ export function ApplicationDetail({ application: initialApp }: ApplicationDetail
                   {/* Contract Type */}
                   {app.contract_type && (
                     <div className="flex items-center justify-between">
-                      <span className="text-xs text-muted-foreground">📋 نوع قرارداد</span>
+                      <span className="text-xs text-muted-foreground">📋 Contract Type</span>
                       <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-muted text-foreground">
-                        {app.contract_type === "permanent"  && "Permanent دائمی"}
-                        {app.contract_type === "fixed_term" && "Fixed-term مدت معین"}
-                        {app.contract_type === "temporary"  && "Temporary موقت"}
+                        {app.contract_type === "permanent"  && "Permanent"}
+                        {app.contract_type === "fixed_term" && "Fixed-term"}
+                        {app.contract_type === "temporary"  && "Temporary"}
                         {app.contract_type === "payroll"    && "Payroll"}
                         {app.contract_type === "zzp"        && "ZZP / Freelance"}
-                        {app.contract_type === "internship" && "Internship کارآموزی"}
+                        {app.contract_type === "internship" && "Internship"}
                       </span>
                     </div>
                   )}
@@ -395,7 +395,7 @@ export function ApplicationDetail({ application: initialApp }: ApplicationDetail
               <div className="rounded-xl border border-border bg-card p-5">
                 <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
                   <StickyNote className="h-4 w-4 text-amber-500" />
-                  توضیحات اولیه
+                  Initial Notes
                 </h3>
                 <p className="text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed">
                   {app.initial_notes}
