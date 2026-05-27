@@ -1,0 +1,39 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx create-next-app@14 . --typescript --tailwind --eslint --app --no-src-dir --import-alias \"@/*\" --yes)",
+      "Read(//d/project/Claude/**)",
+      "Bash(npx create-next-app@14 expense-tracker --typescript --tailwind --eslint --app --no-src-dir --import-alias \"@/*\" --yes)",
+      "Bash(npm install *)",
+      "Bash(npx tsc *)",
+      "Bash(npm run *)",
+      "Bash(echo \"PID: $!\")",
+      "mcp__Claude_in_Chrome__tabs_context_mcp",
+      "Bash(netstat -ano)",
+      "Bash(findstr \":3000\")",
+      "Bash(findstr LISTENING)",
+      "Bash(taskkill /PID 1320 /F)",
+      "Bash(npx next *)",
+      "Bash(powershell -Command \"Get-ChildItem -Recurse -Include *.tsx,*.ts src | Select-Object -ExpandProperty FullName | Sort-Object\")",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "Bash(not exist *)",
+      "Bash(git add *)",
+      "Bash(gh pr *)",
+      "Bash(curl --version)",
+      "Bash(git remote *)",
+      "Bash(git checkout *)",
+      "Bash(git cherry-pick *)",
+      "Bash(npm list *)",
+      "Bash(Get-ChildItem -Path \"D:\\\\claudeproject\\\\Movian\\\\src\\\\app\\\\dashboard\" -Recurse -Filter \"*.tsx\")",
+      "Bash(Select-Object FullName)",
+      "Read(//mnt/d/claudeproject/Movian/src/app/**)",
+      "Bash(cd /mnt/d/claudeproject/Movian && npx tsc --noEmit 2>&1 | head -80)",
+      "Read(//mnt/**)",
+      "Bash(ls /mnt/)",
+      "Read(//c/Users//**)",
+      "Bash(ls \"/c/Users/ASUS/Desktop/\" 2>/dev/null | head -5; ls \"/c/claudeproject/\" 2>/dev/null; echo \"---\"; ls /c/Users/ASUS/ 2>/dev/null | head -10)",
+      "Bash(npx create-next-app@latest . --typescript --tailwind --eslint --app --src-dir --import-alias \"@/*\" --no-git)"
+    ]
+  }
+}
