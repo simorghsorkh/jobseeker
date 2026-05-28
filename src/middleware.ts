@@ -1,8 +1,14 @@
-import { type NextRequest } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { updateSession } from "@/lib/supabase/middleware";
 
 export async function middleware(request: NextRequest) {
-  return await updateSession(request);
+  try {
+    return await updateSession(request);
+  } catch {
+    // If Supabase middleware fails (e.g. misconfigured env), let the request
+    // pass through — individual pages and server components will re-check auth.
+    return NextResponse.next();
+  }
 }
 
 export const config = {
