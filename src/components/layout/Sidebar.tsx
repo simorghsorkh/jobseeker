@@ -16,6 +16,7 @@ import {
   Archive,
   Tag,
   Zap,
+  ShieldCheck,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAppStore } from "@/store/useAppStore";
@@ -32,7 +33,8 @@ const navItems = [
 ];
 
 const bottomItems = [
-  { href: "/settings", icon: Settings, label: "Settings" },
+  { href: "/admin",    icon: ShieldCheck, label: "Admin" },
+  { href: "/settings", icon: Settings,   label: "Settings" },
 ];
 
 export function Sidebar() {
