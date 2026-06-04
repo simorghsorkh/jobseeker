@@ -1,5 +1,4 @@
 import { createClient } from "@/lib/supabase/server";
-import { redirect } from "next/navigation";
 import { AdminDashboard } from "@/components/admin/AdminDashboard";
 
 export default async function AdminPage() {
@@ -8,21 +7,19 @@ export default async function AdminPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) redirect("/auth/login");
-
-  // Load settings (may not exist yet before migration runs)
-  const { data: settingsRows } = await supabase
+  // Load current settings (may be empty before migration runs)
+  const { data: rows } = await supabase
     .from("admin_settings")
     .select("key, value");
 
   const settings: Record<string, string> = {};
-  (settingsRows || []).forEach((r) => { settings[r.key] = r.value; });
+  (rows || []).forEach((r) => { settings[r.key] = r.value; });
 
-  // Application count for the current user
+  // Application count for this user
   const { count: appCount } = await supabase
     .from("applications")
     .select("*", { count: "exact", head: true })
-    .eq("user_id", user.id);
+    .eq("user_id", user!.id);
 
   return (
     <AdminDashboard
