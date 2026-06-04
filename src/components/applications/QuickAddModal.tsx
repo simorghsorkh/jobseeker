@@ -156,6 +156,7 @@ export function QuickAddModal() {
         ai_summary: null,
         ai_match_score: null,
         ai_interview_prep: null,
+        lessons_learned: null,
       });
 
       addApplication(app);

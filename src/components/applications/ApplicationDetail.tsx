@@ -7,7 +7,7 @@ import {
   ExternalLink, Building2, MapPin, Briefcase, Calendar, User,
   Mail, Link as LinkedinIcon, Link2, Globe, DollarSign, Sparkles,
   FileText, Clock, Bell, Tag, Save, X, Star, Languages, AlertCircle,
-  StickyNote, Send,
+  StickyNote, Send, Trophy,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -20,6 +20,7 @@ import { ApplicationNotes } from "./ApplicationNotes";
 import { ApplicationFiles } from "./ApplicationFiles";
 import { ApplicationReminders } from "./ApplicationReminders";
 import { AIApplicationPanel } from "@/components/ai/AIApplicationPanel";
+import { InterviewTab } from "./InterviewTab";
 import {
   updateApplication,
   updateApplicationStatus,
@@ -222,6 +223,7 @@ export function ApplicationDetail({ application: initialApp }: ApplicationDetail
                   { value: "notes", label: "Notes", icon: Edit2 },
                   { value: "files", label: "Files", icon: FileText },
                   { value: "reminders", label: "Reminders", icon: Bell },
+                  { value: "interview", label: "Interview", icon: Trophy },
                   { value: "ai", label: "AI Tools", icon: Sparkles },
                 ].map((tab) => (
                   <TabsTrigger key={tab.value} value={tab.value} className="flex items-center gap-1.5 text-xs px-3">
@@ -286,6 +288,13 @@ export function ApplicationDetail({ application: initialApp }: ApplicationDetail
 
               <TabsContent value="reminders">
                 <ApplicationReminders applicationId={app.id} />
+              </TabsContent>
+
+              <TabsContent value="interview">
+                <InterviewTab
+                  applicationId={app.id}
+                  initialLessonsLearned={app.lessons_learned ?? null}
+                />
               </TabsContent>
 
               <TabsContent value="ai">

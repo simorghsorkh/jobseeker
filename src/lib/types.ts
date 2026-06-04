@@ -114,6 +114,7 @@ export interface Application {
   initial_notes: string | null;
   visa_sponsorship: "yes" | "no" | "maybe" | "eu_only" | null;
   contract_type: "permanent" | "fixed_term" | "temporary" | "payroll" | "zzp" | "internship" | null;
+  lessons_learned: string | null;
 
   // Application Info
   status: ApplicationStatus;
@@ -236,4 +237,29 @@ export interface FilterState {
   isBookmarked: boolean | null;
   isArchived: boolean;
   tags: string[];
+}
+
+export type InterviewResult = "passed" | "failed" | "pending" | "rejected";
+export type QuestionCategory = "technical" | "behavioral" | "company" | "role" | "general";
+
+export interface InterviewRound {
+  id: string;
+  application_id: string;
+  user_id: string;
+  round_name: string;
+  result: InterviewResult | null;
+  interview_date: string | null;
+  notes: string | null;
+  created_at: string;
+}
+
+export interface InterviewQuestion {
+  id: string;
+  application_id: string;
+  user_id: string;
+  question: string;
+  answer: string | null;
+  category: QuestionCategory;
+  created_at: string;
+  updated_at: string;
 }
