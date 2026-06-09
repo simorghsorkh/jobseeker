@@ -98,6 +98,12 @@ export default function DashboardPage() {
           </div>
         )}
 
+        {/* Gamification row: XP widget + Goals — TOP of page */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <GamificationWidget applications={applications} />
+          <GoalsPanel applications={applications} />
+        </div>
+
         {/* Stats grid */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <StatsCard
@@ -198,12 +204,6 @@ export default function DashboardPage() {
               </div>
             )}
           </div>
-        </div>
-
-        {/* Gamification row: XP widget + Goals */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <GamificationWidget applications={applications} />
-          <GoalsPanel applications={applications} />
         </div>
 
         {/* Status breakdown */}
