@@ -191,12 +191,22 @@ export default function ScoutPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
-      if (!res.ok) throw new Error("Failed");
+      const result = await res.json();
+      if (!res.ok) {
+        const msg: string = result?.error || "Failed to create alert";
+        // Table missing → migration not run yet
+        if (msg.includes("does not exist") || msg.includes("relation") || msg.includes("42P01")) {
+          throw new Error("Database tables not set up yet. Run the migration in Supabase SQL Editor.");
+        }
+        throw new Error(msg);
+      }
       toast.success("Alert created! Click Refresh to find jobs 🔍");
       setDialogOpen(false);
       setForm({ name: "", keywords: "", location: "", sources: [], indeed_rss_url: "", custom_rss_urls: "", company_page_urls: "" });
       await loadAlerts();
-    } catch { toast.error("Failed to create alert"); }
+    } catch (e: unknown) {
+      toast.error(e instanceof Error ? e.message : "Failed to create alert", { duration: 6000 });
+    }
   }
 
   // ── Open edit dialog (pre-populate form) ──────────────────────────────────
@@ -242,12 +252,15 @@ export default function ScoutPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
-      if (!res.ok) throw new Error("Failed");
+      const result = await res.json();
+      if (!res.ok) throw new Error(result?.error || "Failed to update alert");
       toast.success("Alert updated!");
       setEditDialogOpen(false);
       setEditingAlert(null);
       await loadAlerts();
-    } catch { toast.error("Failed to update alert"); }
+    } catch (e: unknown) {
+      toast.error(e instanceof Error ? e.message : "Failed to update alert");
+    }
   }
 
   // ── Delete alert ───────────────────────────────────────────────────────────
