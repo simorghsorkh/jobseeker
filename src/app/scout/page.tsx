@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import {
   Search, Plus, RefreshCw, Bookmark, X, ExternalLink,
   Bell, BellOff, Trash2, ChevronDown, ChevronUp, MapPin,
-  Building2, Tag, Clock, Sparkles,
+  Building2, Tag, Clock, Sparkles, Pencil,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import toast from "react-hot-toast";
@@ -26,6 +26,7 @@ interface Alert {
   sources: string[];
   indeed_rss_url: string | null;
   custom_rss_urls: string[];
+  company_page_urls: string[];
   is_active: boolean;
   last_checked_at: string | null;
   new_count: number;
@@ -78,9 +79,22 @@ export default function ScoutPage() {
   const [scraping,      setScraping]      = useState(false);
   const [jobsLoading,   setJobsLoading]   = useState(false);
   const [dialogOpen,    setDialogOpen]    = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [editingAlert,   setEditingAlert]   = useState<Alert | null>(null);
+  const activeAlertRef = useRef<Alert | null>(null);
+  activeAlertRef.current = activeAlert;
 
   // New alert form state
   const [form, setForm] = useState({
+    name: "", keywords: "", location: "",
+    sources: [] as string[],
+    indeed_rss_url: "",
+    custom_rss_urls: "",
+    company_page_urls: "",
+  });
+
+  // Edit alert form state
+  const [editForm, setEditForm] = useState({
     name: "", keywords: "", location: "",
     sources: [] as string[],
     indeed_rss_url: "",
@@ -93,12 +107,19 @@ export default function ScoutPage() {
     setLoading(true);
     try {
       const res = await fetch("/api/jobs/alerts");
-      const data = await res.json();
+      const data: Alert[] = await res.json();
       setAlerts(data);
-      if (data.length > 0 && !activeAlert) setActiveAlert(data[0]);
+      const current = activeAlertRef.current;
+      if (data.length > 0 && !current) {
+        setActiveAlert(data[0]);
+      } else if (current) {
+        // Refresh active alert with latest data (e.g. after edit)
+        const refreshed = data.find((a) => a.id === current.id);
+        if (refreshed) setActiveAlert(refreshed);
+      }
     } catch { toast.error("Failed to load alerts"); }
     setLoading(false);
-  }, [activeAlert]);
+  }, []);
 
   useEffect(() => { loadAlerts(); }, [loadAlerts]);
 
@@ -176,6 +197,57 @@ export default function ScoutPage() {
       setForm({ name: "", keywords: "", location: "", sources: [], indeed_rss_url: "", custom_rss_urls: "", company_page_urls: "" });
       await loadAlerts();
     } catch { toast.error("Failed to create alert"); }
+  }
+
+  // ── Open edit dialog (pre-populate form) ──────────────────────────────────
+  function openEdit(alert: Alert, e: React.MouseEvent) {
+    e.stopPropagation();
+    setEditingAlert(alert);
+    setEditForm({
+      name:              alert.name,
+      keywords:          alert.keywords,
+      location:          alert.location || "",
+      sources:           alert.sources || [],
+      indeed_rss_url:    alert.indeed_rss_url || "",
+      custom_rss_urls:   (alert.custom_rss_urls || []).join("\n"),
+      company_page_urls: (alert.company_page_urls || []).join("\n"),
+    });
+    setEditDialogOpen(true);
+  }
+
+  // ── Update alert ───────────────────────────────────────────────────────────
+  async function handleUpdate() {
+    if (!editingAlert) return;
+    if (!editForm.name || !editForm.keywords || editForm.sources.length === 0) {
+      toast.error("Fill in name, keywords, and at least one source");
+      return;
+    }
+    try {
+      const body = {
+        id:                editingAlert.id,
+        name:              editForm.name.trim(),
+        keywords:          editForm.keywords.trim(),
+        location:          editForm.location.trim() || null,
+        sources:           editForm.sources,
+        indeed_rss_url:    editForm.indeed_rss_url.trim() || null,
+        custom_rss_urls:   editForm.custom_rss_urls
+          ? editForm.custom_rss_urls.split("\n").map((u) => u.trim()).filter(Boolean)
+          : [],
+        company_page_urls: editForm.company_page_urls
+          ? editForm.company_page_urls.split("\n").map((u) => u.trim()).filter(Boolean)
+          : [],
+      };
+      const res = await fetch("/api/jobs/alerts", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      if (!res.ok) throw new Error("Failed");
+      toast.success("Alert updated!");
+      setEditDialogOpen(false);
+      setEditingAlert(null);
+      await loadAlerts();
+    } catch { toast.error("Failed to update alert"); }
   }
 
   // ── Delete alert ───────────────────────────────────────────────────────────
@@ -337,6 +409,111 @@ export default function ScoutPage() {
             </Dialog>
           </div>
 
+          {/* ── Edit Alert Dialog ───────────────────────────────────────── */}
+          <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+            <DialogContent className="max-w-lg">
+              <DialogHeader><DialogTitle>Edit Alert</DialogTitle></DialogHeader>
+              <div className="space-y-4 pt-2 max-h-[70vh] overflow-y-auto pr-1">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="col-span-2 space-y-1.5">
+                    <Label>Alert name</Label>
+                    <Input placeholder="e.g. PM jobs in Amsterdam" value={editForm.name}
+                      onChange={(e) => setEditForm((f) => ({ ...f, name: e.target.value }))} />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label>Keywords</Label>
+                    <Input placeholder="product manager" value={editForm.keywords}
+                      onChange={(e) => setEditForm((f) => ({ ...f, keywords: e.target.value }))} />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label>Location (optional)</Label>
+                    <Input placeholder="Amsterdam, Remote…" value={editForm.location}
+                      onChange={(e) => setEditForm((f) => ({ ...f, location: e.target.value }))} />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Sources to search</Label>
+                  <div className="space-y-2">
+                    {AVAILABLE_SOURCES.map((s) => (
+                      <label key={s.id} className={cn(
+                        "flex items-start gap-3 rounded-lg border p-3 cursor-pointer transition-colors",
+                        editForm.sources.includes(s.id)
+                          ? "border-primary/40 bg-primary/5"
+                          : "border-border hover:bg-accent/50"
+                      )}>
+                        <input type="checkbox" className="mt-0.5"
+                          checked={editForm.sources.includes(s.id)}
+                          onChange={(e) => setEditForm((f) => ({
+                            ...f,
+                            sources: e.target.checked
+                              ? [...f.sources, s.id]
+                              : f.sources.filter((x) => x !== s.id),
+                          }))} />
+                        <div>
+                          <p className="text-sm font-medium">{s.label}</p>
+                          <p className="text-xs text-muted-foreground">{s.desc}</p>
+                        </div>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {editForm.sources.includes("indeed_rss") && (
+                  <div className="space-y-1.5">
+                    <Label>Indeed RSS URL</Label>
+                    <Input
+                      placeholder="https://www.indeed.com/rss?q=product+manager&l=Amsterdam"
+                      value={editForm.indeed_rss_url}
+                      onChange={(e) => setEditForm((f) => ({ ...f, indeed_rss_url: e.target.value }))}
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      On Indeed → search jobs → scroll to bottom → copy the RSS link
+                    </p>
+                  </div>
+                )}
+
+                {editForm.sources.includes("company_pages") && (
+                  <div className="space-y-1.5">
+                    <Label>Company Career Page URLs (one per line)</Label>
+                    <textarea
+                      rows={4}
+                      className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring resize-none font-mono text-xs"
+                      placeholder={"https://boards.greenhouse.io/stripe\nhttps://jobs.lever.co/discord\nhttps://apply.workable.com/notion"}
+                      value={editForm.company_page_urls}
+                      onChange={(e) => setEditForm((f) => ({ ...f, company_page_urls: e.target.value }))}
+                    />
+                    <div className="rounded-lg bg-muted/50 p-2.5 space-y-1 text-xs text-muted-foreground">
+                      <p className="font-medium text-foreground/80">Auto-detected platforms:</p>
+                      <p>🌿 <code>boards.greenhouse.io/[company]</code> → Greenhouse API</p>
+                      <p>🎯 <code>jobs.lever.co/[company]</code> → Lever API</p>
+                      <p>⚙️ <code>apply.workable.com/[company]</code> → Workable API</p>
+                      <p>🤖 Any other URL → AI reads the page and extracts jobs</p>
+                    </div>
+                  </div>
+                )}
+
+                {editForm.sources.includes("custom_rss") && (
+                  <div className="space-y-1.5">
+                    <Label>Custom RSS URLs (one per line)</Label>
+                    <textarea
+                      rows={3}
+                      className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring resize-none"
+                      placeholder={"https://weworkremotely.com/remote-jobs.rss\nhttps://yoursite.com/jobs.rss"}
+                      value={editForm.custom_rss_urls}
+                      onChange={(e) => setEditForm((f) => ({ ...f, custom_rss_urls: e.target.value }))}
+                    />
+                  </div>
+                )}
+
+                <div className="flex gap-2 justify-end pt-1">
+                  <Button variant="ghost" onClick={() => setEditDialogOpen(false)}>Cancel</Button>
+                  <Button onClick={handleUpdate}>Save Changes</Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+
           {/* Alert list */}
           <div className="flex-1 overflow-y-auto p-2 space-y-1">
             {loading ? (
@@ -351,11 +528,14 @@ export default function ScoutPage() {
               </div>
             ) : (
               alerts.map((alert) => (
-                <button
+                <div
                   key={alert.id}
+                  role="button"
+                  tabIndex={0}
                   onClick={() => setActiveAlert(alert)}
+                  onKeyDown={(e) => e.key === "Enter" && setActiveAlert(alert)}
                   className={cn(
-                    "w-full text-left rounded-lg p-3 transition-colors group",
+                    "w-full text-left rounded-lg p-3 transition-colors group cursor-pointer",
                     activeAlert?.id === alert.id
                       ? "bg-primary/10 border border-primary/20"
                       : "hover:bg-accent/50"
@@ -370,8 +550,16 @@ export default function ScoutPage() {
                         </span>
                       )}
                       <button
+                        onClick={(e) => openEdit(alert, e)}
+                        className="opacity-0 group-hover:opacity-100 h-5 w-5 flex items-center justify-center rounded hover:text-primary"
+                        title="Edit alert"
+                      >
+                        <Pencil className="h-3 w-3" />
+                      </button>
+                      <button
                         onClick={(e) => { e.stopPropagation(); handleDelete(alert.id); }}
                         className="opacity-0 group-hover:opacity-100 h-5 w-5 flex items-center justify-center rounded hover:text-destructive"
+                        title="Delete alert"
                       >
                         <Trash2 className="h-3 w-3" />
                       </button>
@@ -383,7 +571,7 @@ export default function ScoutPage() {
                       Last: {formatDate(alert.last_checked_at)}
                     </p>
                   )}
-                </button>
+                </div>
               ))
             )}
           </div>
