@@ -18,6 +18,7 @@ import {
   Zap,
   ShieldCheck,
   Trophy,
+  Radar,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAppStore } from "@/store/useAppStore";
@@ -26,6 +27,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 const navItems = [
   { href: "/dashboard",    icon: LayoutDashboard, label: "Dashboard" },
   { href: "/applications", icon: Briefcase,       label: "Applications" },
+  { href: "/scout",        icon: Radar,           label: "Job Scout" },
   { href: "/bookmarks",    icon: BookmarkCheck,   label: "Bookmarks" },
   { href: "/analytics",    icon: BarChart3,       label: "Analytics" },
   { href: "/reminders",    icon: Bell,            label: "Reminders" },
