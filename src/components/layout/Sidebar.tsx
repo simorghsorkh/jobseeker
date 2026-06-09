@@ -17,19 +17,21 @@ import {
   Tag,
   Zap,
   ShieldCheck,
+  Trophy,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAppStore } from "@/store/useAppStore";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const navItems = [
-  { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
-  { href: "/applications", icon: Briefcase, label: "Applications" },
-  { href: "/bookmarks", icon: BookmarkCheck, label: "Bookmarks" },
-  { href: "/analytics", icon: BarChart3, label: "Analytics" },
-  { href: "/reminders", icon: Bell, label: "Reminders" },
-  { href: "/archive", icon: Archive, label: "Archive" },
-  { href: "/tags", icon: Tag, label: "Tags" },
+  { href: "/dashboard",    icon: LayoutDashboard, label: "Dashboard" },
+  { href: "/applications", icon: Briefcase,       label: "Applications" },
+  { href: "/bookmarks",    icon: BookmarkCheck,   label: "Bookmarks" },
+  { href: "/analytics",    icon: BarChart3,       label: "Analytics" },
+  { href: "/reminders",    icon: Bell,            label: "Reminders" },
+  { href: "/achievements", icon: Trophy,          label: "Achievements" },
+  { href: "/archive",      icon: Archive,         label: "Archive" },
+  { href: "/tags",         icon: Tag,             label: "Tags" },
 ];
 
 const bottomItems = [

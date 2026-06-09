@@ -263,3 +263,44 @@ export interface InterviewQuestion {
   created_at: string;
   updated_at: string;
 }
+
+// ── Gamification ─────────────────────────────────────────────────────────────
+
+export interface UserStats {
+  user_id: string;
+  total_xp: number;
+  level: number;
+  current_streak: number;
+  longest_streak: number;
+  last_activity_date: string | null;
+  updated_at: string;
+}
+
+export interface UserAchievement {
+  id: string;
+  user_id: string;
+  achievement_id: string;
+  earned_at: string;
+}
+
+export type GoalType =
+  | "applications_total"
+  | "applications_weekly"
+  | "applications_monthly"
+  | "interviews_total"
+  | "custom";
+
+export interface UserGoal {
+  id: string;
+  user_id: string;
+  title: string;
+  goal_type: GoalType;
+  target_value: number;
+  current_value: number;
+  deadline: string | null;
+  is_active: boolean;
+  is_completed: boolean;
+  completed_at: string | null;
+  created_at: string;
+  updated_at: string;
+}

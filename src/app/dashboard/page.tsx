@@ -16,6 +16,8 @@ import { PipelineChart } from "@/components/dashboard/PipelineChart";
 import { ActivityFeed } from "@/components/dashboard/ActivityFeed";
 import { WeeklyChart } from "@/components/dashboard/WeeklyChart";
 import { StatusBadge } from "@/components/applications/StatusBadge";
+import { GamificationWidget } from "@/components/gamification/GamificationWidget";
+import { GoalsPanel } from "@/components/gamification/GoalsPanel";
 import { Button } from "@/components/ui/button";
 import { useAppStore } from "@/store/useAppStore";
 import { getApplications } from "@/lib/db/applications";
@@ -196,6 +198,12 @@ export default function DashboardPage() {
               </div>
             )}
           </div>
+        </div>
+
+        {/* Gamification row: XP widget + Goals */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <GamificationWidget applications={applications} />
+          <GoalsPanel applications={applications} />
         </div>
 
         {/* Status breakdown */}
