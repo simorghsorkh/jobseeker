@@ -21,6 +21,6 @@ CREATE POLICY "Authenticated users write settings"
 
 -- Seed defaults
 INSERT INTO admin_settings (key, value) VALUES
-  ('ai_model',   'anthropic/claude-3.5-sonnet'),
+  ('ai_model',   'meta-llama/llama-3.1-8b-instruct:free'),
   ('ai_enabled', 'true')
 ON CONFLICT (key) DO NOTHING;

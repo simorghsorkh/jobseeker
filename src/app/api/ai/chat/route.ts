@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
-const DEFAULT_MODEL = "anthropic/claude-3.5-sonnet";
+const DEFAULT_MODEL = "meta-llama/llama-3.1-8b-instruct:free";
 
 async function getSelectedModel(): Promise<string> {
   try {
