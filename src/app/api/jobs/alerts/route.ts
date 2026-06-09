@@ -9,7 +9,7 @@ export async function GET() {
 
     const { data: alerts } = await supabase
       .from("job_alerts")
-      .select("*, scraped_jobs(count)")
+      .select("*")
       .eq("user_id", user.id)
       .order("created_at", { ascending: false });
 

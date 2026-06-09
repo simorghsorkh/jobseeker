@@ -14,7 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn, formatDate } from "@/lib/utils";
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger,
+  Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger,
 } from "@/components/ui/dialog";
 
 // ── Types ────────────────────────────────────────────────────────────────────
@@ -319,7 +319,10 @@ export default function ScoutPage() {
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-w-lg">
-                <DialogHeader><DialogTitle>New Job Alert</DialogTitle></DialogHeader>
+                <DialogHeader>
+                  <DialogTitle>New Job Alert</DialogTitle>
+                  <DialogDescription>Set up a job search to automatically find new openings.</DialogDescription>
+                </DialogHeader>
                 <div className="space-y-4 pt-2 max-h-[70vh] overflow-y-auto pr-1">
                   <div className="grid grid-cols-2 gap-3">
                     <div className="col-span-2 space-y-1.5">
@@ -425,7 +428,10 @@ export default function ScoutPage() {
           {/* ── Edit Alert Dialog ───────────────────────────────────────── */}
           <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
             <DialogContent className="max-w-lg">
-              <DialogHeader><DialogTitle>Edit Alert</DialogTitle></DialogHeader>
+              <DialogHeader>
+                <DialogTitle>Edit Alert</DialogTitle>
+                <DialogDescription>Update your job search criteria and sources.</DialogDescription>
+              </DialogHeader>
               <div className="space-y-4 pt-2 max-h-[70vh] overflow-y-auto pr-1">
                 <div className="grid grid-cols-2 gap-3">
                   <div className="col-span-2 space-y-1.5">
