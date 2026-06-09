@@ -50,17 +50,22 @@ interface Job {
 }
 
 const SOURCE_LABELS: Record<string, { label: string; color: string }> = {
-  indeed:   { label: "Indeed",    color: "bg-blue-500/15 text-blue-400" },
-  remotive: { label: "Remotive",  color: "bg-green-500/15 text-green-400" },
-  remoteok: { label: "RemoteOK",  color: "bg-orange-500/15 text-orange-400" },
-  custom:   { label: "Custom",    color: "bg-violet-500/15 text-violet-400" },
+  indeed:     { label: "Indeed",       color: "bg-blue-500/15 text-blue-400" },
+  remotive:   { label: "Remotive",     color: "bg-green-500/15 text-green-400" },
+  remoteok:   { label: "RemoteOK",     color: "bg-orange-500/15 text-orange-400" },
+  greenhouse: { label: "Greenhouse",   color: "bg-emerald-500/15 text-emerald-400" },
+  lever:      { label: "Lever",        color: "bg-rose-500/15 text-rose-400" },
+  workable:   { label: "Workable",     color: "bg-purple-500/15 text-purple-400" },
+  company:    { label: "Career Page",  color: "bg-cyan-500/15 text-cyan-400" },
+  custom:     { label: "Custom RSS",   color: "bg-violet-500/15 text-violet-400" },
 };
 
 const AVAILABLE_SOURCES = [
-  { id: "remotive",   label: "Remotive",        desc: "Remote jobs API (free)" },
-  { id: "remoteok",   label: "RemoteOK",         desc: "Remote tech jobs (free)" },
-  { id: "indeed_rss", label: "Indeed RSS",       desc: "Paste your Indeed search RSS URL" },
-  { id: "custom_rss", label: "Custom RSS / Site",desc: "Any job site with RSS feed" },
+  { id: "company_pages", label: "🏢 Company Career Pages", desc: "Any company URL — auto-detects Greenhouse, Lever, Workable, or uses AI to extract jobs" },
+  { id: "remotive",      label: "Remotive",                desc: "Remote jobs API (free, no key needed)" },
+  { id: "remoteok",      label: "RemoteOK",                desc: "Remote tech jobs (free, no key needed)" },
+  { id: "indeed_rss",    label: "Indeed RSS",              desc: "Paste your Indeed search RSS URL" },
+  { id: "custom_rss",    label: "Custom RSS Feed",         desc: "Any job site with RSS feed" },
 ];
 
 // ── Main page ─────────────────────────────────────────────────────────────────
@@ -80,6 +85,7 @@ export default function ScoutPage() {
     sources: [] as string[],
     indeed_rss_url: "",
     custom_rss_urls: "",
+    company_page_urls: "",
   });
 
   // ── Load alerts ────────────────────────────────────────────────────────────
@@ -155,6 +161,9 @@ export default function ScoutPage() {
         custom_rss_urls: form.custom_rss_urls
           ? form.custom_rss_urls.split("\n").map((u) => u.trim()).filter(Boolean)
           : [],
+        company_page_urls: form.company_page_urls
+          ? form.company_page_urls.split("\n").map((u) => u.trim()).filter(Boolean)
+          : [],
       };
       const res = await fetch("/api/jobs/alerts", {
         method: "POST",
@@ -164,7 +173,7 @@ export default function ScoutPage() {
       if (!res.ok) throw new Error("Failed");
       toast.success("Alert created! Click Refresh to find jobs 🔍");
       setDialogOpen(false);
-      setForm({ name: "", keywords: "", location: "", sources: [], indeed_rss_url: "", custom_rss_urls: "" });
+      setForm({ name: "", keywords: "", location: "", sources: [], indeed_rss_url: "", custom_rss_urls: "", company_page_urls: "" });
       await loadAlerts();
     } catch { toast.error("Failed to create alert"); }
   }
@@ -283,6 +292,26 @@ export default function ScoutPage() {
                       <p className="text-xs text-muted-foreground">
                         On Indeed → search jobs → scroll to bottom → copy the RSS link
                       </p>
+                    </div>
+                  )}
+
+                  {form.sources.includes("company_pages") && (
+                    <div className="space-y-1.5">
+                      <Label>Company Career Page URLs (one per line)</Label>
+                      <textarea
+                        rows={4}
+                        className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring resize-none font-mono text-xs"
+                        placeholder={"https://boards.greenhouse.io/stripe\nhttps://jobs.lever.co/discord\nhttps://apply.workable.com/notion\nhttps://careers.microsoft.com/global/en/search-results"}
+                        value={form.company_page_urls}
+                        onChange={(e) => setForm((f) => ({ ...f, company_page_urls: e.target.value }))}
+                      />
+                      <div className="rounded-lg bg-muted/50 p-2.5 space-y-1 text-xs text-muted-foreground">
+                        <p className="font-medium text-foreground/80">Auto-detected platforms:</p>
+                        <p>🌿 <code>boards.greenhouse.io/[company]</code> → Greenhouse API</p>
+                        <p>🎯 <code>jobs.lever.co/[company]</code> → Lever API</p>
+                        <p>⚙️ <code>apply.workable.com/[company]</code> → Workable API</p>
+                        <p>🤖 Any other URL → AI reads the page and extracts jobs</p>
+                      </div>
                     </div>
                   )}
 

@@ -9,9 +9,10 @@ CREATE TABLE IF NOT EXISTS job_alerts (
   name           TEXT NOT NULL,
   keywords       TEXT NOT NULL,         -- e.g. "product manager"
   location       TEXT,                  -- e.g. "Amsterdam" (blank = remote/any)
-  sources        TEXT[] DEFAULT '{}',   -- ['indeed_rss','remotive','remoteok','custom_rss']
+  sources        TEXT[] DEFAULT '{}',   -- ['indeed_rss','remotive','remoteok','custom_rss','company_pages']
   indeed_rss_url TEXT,                  -- paste your Indeed RSS URL here
   custom_rss_urls TEXT[] DEFAULT '{}',  -- any extra RSS feeds
+  company_page_urls TEXT[] DEFAULT '{}', -- company career pages (auto-detects Greenhouse/Lever/generic)
   is_active      BOOLEAN NOT NULL DEFAULT TRUE,
   last_checked_at TIMESTAMPTZ,
   created_at     TIMESTAMPTZ DEFAULT NOW(),
