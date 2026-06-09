@@ -32,53 +32,60 @@ export function GamificationWidget({ applications }: Props) {
   const [loading,      setLoading]      = useState(true);
 
   const load = useCallback(async () => {
-    const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
+    try {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) { setLoading(false); return; }
 
-    // Ensure row exists
-    const s  = await ensureUserStats(user.id);
-    setStats(s);
+      // Ensure row exists (silently fails if table missing)
+      const s = await ensureUserStats(user.id);
+      setStats(s);
 
-    // Record today's activity (streak)
-    await recordActivityToday(user.id);
+      // Record today's activity (streak) - ignore errors
+      try { await recordActivityToday(user.id); } catch { /* table may not exist yet */ }
 
-    // Re-fetch stats after recording
-    const refreshed = await getUserStats(user.id);
-    if (refreshed) setStats(refreshed);
+      // Re-fetch stats after recording
+      try {
+        const refreshed = await getUserStats(user.id);
+        if (refreshed) setStats(refreshed);
+      } catch { /* ignore */ }
 
-    // Count data for achievements
-    const appCount       = applications.length;
-    const interviewCount = applications.filter((a) =>
-      ["interview_scheduled", "technical_interview", "final_interview"].includes(a.status)
-    ).length;
-    const lessonCount = applications.filter((a) => a.lessons_learned).length;
+      // Count data for achievements
+      const appCount       = applications.length;
+      const interviewCount = applications.filter((a) =>
+        ["interview_scheduled", "technical_interview", "final_interview"].includes(a.status)
+      ).length;
+      const lessonCount = applications.filter((a) => a.lessons_learned).length;
 
-    // Check + award achievements
-    const newIds = await checkAndAwardAchievements(user.id, {
-      appCount,
-      interviewCount,
-      streak:             refreshed?.current_streak ?? s.current_streak,
-      goalCreatedCount:   0, // updated in GoalsPanel
-      goalCompletedCount: 0,
-      lessonCount,
-      qaCount:            0,
-    });
-
-    // Toast for newly earned
-    newIds.forEach((id) => {
-      const def = getAchievementById(id);
-      if (def) {
-        toast.success(`${def.icon} Badge earned: ${def.title} (+${def.xp} XP)`, {
-          duration: 4000,
-          style: { fontWeight: 600 },
+      // Check + award achievements (silently fails if table missing)
+      try {
+        const currentStats = await getUserStats(user.id);
+        const newIds = await checkAndAwardAchievements(user.id, {
+          appCount,
+          interviewCount,
+          streak:             currentStats?.current_streak ?? 0,
+          goalCreatedCount:   0,
+          goalCompletedCount: 0,
+          lessonCount,
+          qaCount:            0,
         });
-      }
-    });
-
-    const earned = await getEarnedAchievements(user.id);
-    setAchievements(earned);
-    setLoading(false);
+        newIds.forEach((id) => {
+          const def = getAchievementById(id);
+          if (def) {
+            toast.success(`${def.icon} Badge earned: ${def.title} (+${def.xp} XP)`, {
+              duration: 4000,
+              style: { fontWeight: 600 },
+            });
+          }
+        });
+        const earned = await getEarnedAchievements(user.id);
+        setAchievements(earned);
+      } catch { /* achievements table may not exist yet */ }
+    } catch {
+      /* fail silently */
+    } finally {
+      setLoading(false);
+    }
   }, [applications]);
 
   useEffect(() => { load(); }, [load]);
@@ -93,7 +100,82 @@ export function GamificationWidget({ applications }: Props) {
     );
   }
 
-  if (!stats) return null;
+  // Show rich demo/preview when DB tables not yet set up
+  if (!stats) {
+    return (
+      <div className="rounded-xl border border-violet-500/25 bg-card p-5 relative overflow-hidden">
+        {/* "Preview" ribbon */}
+        <div className="absolute top-2.5 right-2.5 text-[10px] font-bold uppercase tracking-wider text-violet-400 bg-violet-500/15 px-2 py-0.5 rounded-full">
+          Preview
+        </div>
+
+        {/* Header */}
+        <div className="flex items-center gap-2 mb-4">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-violet-500/20">
+            <Zap className="h-4 w-4 text-violet-500" />
+          </div>
+          <div>
+            <p className="text-sm font-semibold leading-tight">Level 5 · Contender</p>
+            <p className="text-xs text-muted-foreground">This is what you&apos;ll unlock 🚀</p>
+          </div>
+        </div>
+
+        {/* Demo XP bar – 72% full */}
+        <div className="mb-4">
+          <div className="flex justify-between text-xs text-muted-foreground mb-1.5">
+            <span className="text-violet-400 font-medium">1,260 XP</span>
+            <span>360/500 to Lv.6</span>
+          </div>
+          <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
+            <motion.div
+              className="h-full rounded-full bg-gradient-to-r from-violet-500 to-violet-400"
+              initial={{ width: 0 }}
+              animate={{ width: "72%" }}
+              transition={{ duration: 1.2, ease: "easeOut" }}
+            />
+          </div>
+        </div>
+
+        {/* Stats row */}
+        <div className="flex items-center gap-5 mb-4">
+          <div className="flex items-center gap-1.5">
+            <Flame className="h-4 w-4 text-orange-500" />
+            <span className="text-sm font-semibold">7</span>
+            <span className="text-xs text-muted-foreground">day streak</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <Trophy className="h-4 w-4 text-amber-500" />
+            <span className="text-sm font-semibold">8</span>
+            <span className="text-xs text-muted-foreground">badges</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <Star className="h-3.5 w-3.5 text-blue-400" />
+            <span className="text-xs text-muted-foreground">Best: 12d</span>
+          </div>
+        </div>
+
+        {/* Demo badges */}
+        <div>
+          <p className="text-xs text-muted-foreground mb-2">Sample badges you can earn</p>
+          <div className="flex items-center gap-1.5">
+            {["🚀","⭐","🔥","🎯","💪","🌱","🔥","🏅"].map((icon, i) => (
+              <div key={i} className="flex h-8 w-8 items-center justify-center rounded-lg border border-violet-400/30 bg-violet-400/10 text-base">
+                {icon}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* CTA */}
+        <div className="mt-4 flex items-center gap-2 rounded-lg bg-violet-500/10 border border-violet-500/20 px-3 py-2">
+          <Zap className="h-3.5 w-3.5 text-violet-400 flex-shrink-0" />
+          <p className="text-xs text-violet-400">
+            Run <code className="font-mono bg-violet-500/20 px-1 rounded">add_gamification.sql</code> in Supabase SQL Editor to activate
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   const progress = getLevelProgress(stats.total_xp);
   const recentBadges = achievements.slice(0, 5);

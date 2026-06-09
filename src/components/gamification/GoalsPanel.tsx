@@ -71,6 +71,7 @@ function computeAutoValue(type: GoalType, apps: Application[]): number | null {
 export function GoalsPanel({ applications }: Props) {
   const [goals,       setGoals]       = useState<UserGoal[]>([]);
   const [userId,      setUserId]      = useState<string | null>(null);
+  const [dbReady,     setDbReady]     = useState(false);
   const [loading,     setLoading]     = useState(true);
   const [dialogOpen,  setDialogOpen]  = useState(false);
   const [newTitle,    setNewTitle]    = useState("");
@@ -80,13 +81,18 @@ export function GoalsPanel({ applications }: Props) {
   const [saving,      setSaving]      = useState(false);
 
   const load = useCallback(async () => {
-    const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
-    setUserId(user.id);
-    const g = await getUserGoals(user.id);
-    setGoals(g);
-    setLoading(false);
+    try {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) { setLoading(false); return; }
+      setUserId(user.id);
+      try {
+        const g = await getUserGoals(user.id);
+        setGoals(g);
+        setDbReady(true);
+      } catch { /* table may not exist yet */ }
+    } catch { /* ignore */ }
+    finally { setLoading(false); }
   }, []);
 
   useEffect(() => { load(); }, [load]);
@@ -227,7 +233,28 @@ export function GoalsPanel({ applications }: Props) {
       </div>
 
       {/* Goals list */}
-      {goals.length === 0 ? (
+      {!dbReady ? (
+        /* DB not set up yet — show demo goals */
+        <div className="space-y-3">
+          {[
+            { title: "Apply to 20 jobs this month", pct: 75, cur: 15, total: 20 },
+            { title: "Get 3 interviews this week",  pct: 33, cur: 1,  total: 3  },
+          ].map((g, i) => (
+            <div key={i} className="rounded-lg border border-border bg-background/40 p-3 opacity-60">
+              <p className="text-sm font-medium mb-2">{g.title}</p>
+              <div className="flex justify-between text-xs text-muted-foreground mb-1">
+                <span>Progress</span><span>{g.cur}/{g.total}</span>
+              </div>
+              <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden">
+                <div className="h-full rounded-full bg-primary" style={{ width: `${g.pct}%` }} />
+              </div>
+            </div>
+          ))}
+          <p className="text-xs text-center text-muted-foreground pt-1">
+            Run migration to create real goals ↑
+          </p>
+        </div>
+      ) : goals.length === 0 ? (
         <div className="flex flex-col items-center py-6 text-center">
           <Target className="h-8 w-8 text-muted-foreground/30 mb-2" />
           <p className="text-sm text-muted-foreground">No goals yet</p>
