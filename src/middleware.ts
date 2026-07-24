@@ -12,7 +12,9 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
+  // Only run on page routes — skip API routes, static files, and Next.js internals.
+  // API routes call getUser() themselves; they don't need middleware redirect logic.
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/((?!api/|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };

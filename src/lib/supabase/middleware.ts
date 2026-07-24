@@ -33,9 +33,12 @@ export async function updateSession(request: NextRequest) {
     }
   );
 
+  // getSession() reads from the cookie — no network call, no timeout.
+  // Pages and API routes that need verified identity still call getUser().
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
+  const user = session?.user ?? null;
 
   const { pathname } = request.nextUrl;
 
